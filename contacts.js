@@ -1,74 +1,52 @@
-// const fs = require('fs').promises;
 const fs = require('fs/promises');
+const { nanoid } = require('nanoid');
 const path = require('path');
-// const contactsPath = './db/contacts.json';
+
 const contactsPath = path.join(__dirname, 'db/contacts.json');
 
-// const contactsPath = async () => {
-//   await fs
-//     .readFile('./db/contacts.json')
-//     .then((data) => {
-//       console.log(data.toString());
-//       return data;
-//     })
-//     .catch((err) => console.log(err.message));
-// };
-
 const listContacts = async () => {
-  await fs
-    .readFile(contactsPath, 'utf-8')
-    .then((data) => {
-      // console.log(data.toString());
-      console.log(data);
-      return data;
-      // return JSON.parse(data);
-    })
-    .catch((err) => console.log(err.message));
+  const data = await fs.readFile(contactsPath, 'utf-8');
+  // console.log(data);
+  return JSON.parse(data);
 };
 
 const getContactById = async (contactId) => {
-  await fs
-    .readFile(contactsPath, 'utf-8')
-    .then((data) => {
-      const foundedContact = [...data].filter((contact) => contactId === contact.id);
-      console.log(foundedContact);
-      return foundedContact;
-    })
-    .catch((err) => console.log(err.message));
+  const contacts = await listContacts();
+  const result = contacts.find((contact) => contact.id === contactId);
+  // console.log(result);
+  return result || null;
 };
 
-function removeContact(contactId) {
-  fs.readFile(contactsPath)
-    .then((data) => {
-      const removingContact = data.filter((contact) => contactId === contact.id);
-      const afterRemoveContact = data.filter((contact) => contactId !== contact.id);
-      fs.writeFile(contactsPath, afterRemoveContact);
-      console.log(removingContact, afterRemoveContact);
-      return removingContact;
-    })
-    .catch((err) => console.log(err.message));
-}
+const removeContact = async (contactId) => {
+  const contacts = await listContacts();
+  const index = contacts.findIndex((contact) => contact.id === contactId);
+  if (index === -1) {
+    return null;
+  }
+  const removingContact = contacts[index];
+  const [result] = contacts.splice(index, 1);
+  await fs.writeFile(contactsPath, JSON.stringify(result, null, 2));
+  return removingContact;
+};
 
-// function addContact (name, email, phone) {
-//   const addingContact = { name, email, phone };
-// fs.appendFile(contactsPath, addingContact)
-//   fs.readFile(contactsPath)
-//     .then((data) => {
-//       const afterAddContact = [...data, addingContact];
-//       fs.writeFile(contactsPath, afterAddContact);
-//       console.log(addingContact, afterAddContact);
-//       return addingContact;
-//     })
-//     .catch((err) => console.log(err.message));
-// };
+const updateContact = async (contactId, data) => {
+  const contacts = await listContacts();
+  const index = contacts.findIndex((contact) => contact.id === contactId);
+  if (index === -1) {
+    return null;
+  } 
+  contacts[index] = {contactId, ...data};  
+  await fs.writeFile(contactsPath, JSON.stringify(result, null, 2));
+  return contacts[index];
+};
 
-// const contactFunctions = { listContacts, addContact, removeContact, getContactById };
-// export default listContacts;
+const addContact = async (data) => {
+  const contacts = await listContacts();
+  const newContact = { id: nanoid(), ...data };
+  contacts.push(newContact);
+  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+  console.log(newContact);
+  return newContact;
+};
 
-module.exports = { listContacts, getContactById };
-
-// fs.readFile(filename, [options]) - читання файлу
-// fs.writeFile(filename, data, [options]) - запис файлу
-// fs.appendFile(filename, data, [options])- додавання у файл
-// fs.rename(oldPath, newPath) - перейменування файлу.
-// fs.unlink(path, callback) - видалення файлу.
+module.exports = { listContacts, getContactById, removeContact, addContact, updateContact };

@@ -1,14 +1,7 @@
-const contactFunctions = require('./contacts');
+const contacts = require('./contacts');
 
-// import contactFunctions from './contacts.js';
+contacts.listContacts();
 
-contactFunctions.listContacts();
-
-//  import { getContactById } from './contacts.js';
-
-// const listContacts = require('listContacts');
-// const removeContact = require('removeContact');
-// const addContact = require('addContact');
-// const getContactById = require('getContactById');
-
-// contactFunctions.getContactById('e6ywwRe4jcqxXfCZOj_1e');
+contacts.getContactById('drsAJ4SHPYqZeG-83QTVW');
+// contacts.removeContact('AeHIrLTr6JkxGE6SN-0Rw');
+// contacts.addContact({name: 'drW', mail: 'mail.com', phone: '123-123'});
